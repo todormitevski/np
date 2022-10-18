@@ -1,4 +1,4 @@
-package aud2;
+package aud2.class1;
 
 public class Matrix {
     public static double sum(double[][] matrix){

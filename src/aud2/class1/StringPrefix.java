@@ -1,4 +1,4 @@
-package aud2;
+package aud2.class1;
 
 import java.util.stream.IntStream;
 
