@@ -5,6 +5,8 @@ import java.util.function.*;
 
 public class FunctionalInterfacesTest {
     public static void main(String[] args) {
+        //filter()
+        //some logic
         Predicate<Integer> LessThan100 = new Predicate<Integer>() {
             @Override
             public boolean test(Integer integer) {
@@ -12,8 +14,10 @@ public class FunctionalInterfacesTest {
             }
         };
 
+        //lambda
         Predicate<Integer> lessThan100 = integer -> integer < 100;
 
+        //expects no arguments, gives result
         Supplier<Integer> IntegerSupplier = new Supplier<Integer>() {
             @Override
             public Integer get() {
@@ -21,8 +25,10 @@ public class FunctionalInterfacesTest {
             }
         };
 
+        //lambda
         Supplier<Integer> integerSupplier = () -> new Random().nextInt(100);
 
+        //doesn't return, but consumes data
         Consumer<String> StringConsumer = new Consumer<String>() {
             @Override
             public void accept(String s) {
@@ -30,8 +36,11 @@ public class FunctionalInterfacesTest {
             }
         };
 
+        //lambda
         Consumer<String> stringConsumer = s -> System.out.println(s); //method reference suggestion
 
+        //receives one value, returns another (type)
+        //used in maps
         Function<Integer, String> FormattedNumberString = new Function<Integer, String>() { //inputs integer, returns String
             @Override
             public String apply(Integer integer) {
@@ -39,8 +48,10 @@ public class FunctionalInterfacesTest {
             }
         };
 
+        //lambda
         Function<Integer, String> formatNumberString = num -> String.format("%d\n", num);
 
+        //receives 2 arguments, returns other value
         BiFunction<Integer, Integer, String> SumNumbersAndFormat = new BiFunction<Integer, Integer, String>() {
             @Override
             public String apply(Integer integer, Integer integer2) {
