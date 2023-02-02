@@ -1,4 +1,4 @@
-package labs.banka;
+package labs.Intro.bank;
 
 public class FlatPercentProvisionTransaction extends Transaction{
     private final int percent;

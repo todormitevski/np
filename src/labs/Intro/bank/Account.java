@@ -1,4 +1,4 @@
-package labs.banka;
+package labs.Intro.bank;
 
 import java.util.Objects;
 import java.util.Random;

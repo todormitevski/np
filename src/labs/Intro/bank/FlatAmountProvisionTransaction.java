@@ -1,4 +1,4 @@
-package labs.banka;
+package labs.Intro.bank;
 
 public class FlatAmountProvisionTransaction extends Transaction{
     private final String flatAmount;
