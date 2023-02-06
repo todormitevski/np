@@ -1,104 +1,82 @@
 package kolokviumski.vlezni;
 
 import java.io.*;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicInteger;
 
-class Square implements Comparable<Square>{
+class Square{
     int side;
 
     public Square(int side) {
         this.side = side;
     }
 
-    public int perimeter(){
+    public int calcPerimeter(){
         return 4 * side;
     }
-
-    @Override
-    public int compareTo(Square o) {
-        return Integer.compare(this.perimeter(), o.perimeter());
-    }
 }
 
-class CanvasFactory{
-
-    public static Canvas createCanvas(String line) {
-        String[] parts = line.split("\\s+");
-        String id = parts[0];
-        List<Square> squares;
-
-        squares = Arrays.stream(parts)
-                .skip(1)
-                .map(part -> new Square(Integer.parseInt(part)))
-                .collect(Collectors.toList());
-
-        return new Canvas(id, squares);
-    }
-}
-
-class Canvas{
+class Window{
     String id;
     List<Square> squares;
 
-    public Canvas(String id, List<Square> squares) {
+    public Window(String id, List<Square> squares) {
         this.id = id;
         this.squares = squares;
     }
 
-    public int squareCount(){
-        return squares.size();
+    public List<Square> getSquares() {
+        return squares;
     }
 
-    public int sumPerimeter(){
+    public int calcTotalPerimeter(){
         return squares.stream()
-                .mapToInt(Square::perimeter)
+                .mapToInt(Square::calcPerimeter)
                 .sum();
     }
 
     @Override
     public String toString() {
-        return String.format("%s %d %d",
-                id, squares.size(), sumPerimeter());
+        return String.format(
+                "%s %d %d",
+                id,squares.size(),calcTotalPerimeter()
+        );
     }
 }
 
 class ShapesApplication{
-    List<Canvas> canvases;
+    List<Window> windows;
 
-    public int readCanvases(InputStream inputStream) {
+    public ShapesApplication() {
+        windows = new ArrayList<>();
+    }
+
+    int readCanvases (InputStream inputStream){
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-        this.canvases = br.lines()
-                .map(CanvasFactory::createCanvas)
-                .collect(Collectors.toList());
-
-        return canvases.stream()
-                .mapToInt(Canvas::squareCount)
+        br.lines()
+                .forEach(line -> {
+                    String[] parts = line.split("\\s+");
+                    String id = parts[0];
+                    List<Square> squares = new ArrayList<>();
+                    for(int i=1;i< parts.length;i++){
+                        int side = Integer.parseInt(parts[i]);
+                        Square square = new Square(side);
+                        squares.add(square);
+                    }
+                    windows.add(new Window(id,squares));
+                });
+        return windows.stream()
+                .mapToInt(windows -> windows.getSquares().size())
                 .sum();
-        //return canvases.stream().count(); also works
     }
 
-    private int findLargest(){
-        int max = canvases.get(0).sumPerimeter();
-        int index = 0;
-        for(int i=1;i<canvases.size();i++){
-            if(canvases.get(i).sumPerimeter() > max){
-                max = canvases.get(i).sumPerimeter();
-                index = i;
-            }
-        }
-        return index;
-    }
-
-    public void printLargestCanvasTo(OutputStream outputStream) {
+    void printLargestCanvasTo (OutputStream outputStream){
         PrintWriter pw = new PrintWriter(outputStream);
-        int max = findLargest();
-        Canvas maxCanvas = canvases.get(max);
-
-        pw.println(maxCanvas);
-        pw.flush();
+        windows.stream()
+                .max(Comparator.comparing(Window::calcTotalPerimeter))
+                .ifPresent(System.out::println);
     }
 }
 
