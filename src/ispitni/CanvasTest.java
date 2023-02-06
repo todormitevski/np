@@ -6,13 +6,13 @@ import java.util.stream.Collectors;
 
 class InvalidIdException extends Exception{
     public InvalidIdException(String message) {
-        System.out.printf("ID %s is not valid\n", message);
+        super(String.format("ID %s is not valid", message));
     }
 }
 
 class InvalidDimensionException extends Exception{
     public InvalidDimensionException() {
-        System.out.println("Dimension 0 is not allowed!");
+        super("Dimension 0 is not allowed!");
     }
 }
 
@@ -145,6 +145,52 @@ class Rectangle implements Shape{
     }
 }
 
+class ShapeFactory{
+    public static boolean checkId(String id){
+        if(id.length() != 6){
+            return false;
+        }
+        for(char c : id.toCharArray()){
+            if(!Character.isLetterOrDigit(c)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static String extractId(String line) throws InvalidIdException {
+        String[] parts = line.split("\\s+");
+        String id = parts[1];
+        if(!checkId(id)){
+            throw new InvalidIdException(id);
+        }
+        return id;
+    }
+
+    public static Shape createShape(String line) throws InvalidIdException, InvalidDimensionException {
+        String[] parts = line.split("\\s+");
+        int type = Integer.parseInt(parts[0]);
+        String id = extractId(line);
+        double dimension1 = Double.parseDouble(parts[2]);
+        if(dimension1 == 0.0){
+            throw new InvalidDimensionException();
+        }
+
+        //1 = circle/2 = square/3 = rectangle
+        if(type == 1){
+            return new Circle(dimension1);
+        } else if(type == 2){
+            return new Square(dimension1);
+        } else{
+            double dimension2 = Double.parseDouble(parts[3]);
+            if(dimension2 == 0.0){
+                throw new InvalidDimensionException();
+            }
+            return new Rectangle(dimension1,dimension2);
+        }
+    }
+}
+
 class Canvas{
     Set<Shape> shapes;
     Map<String,Set<Shape>> shapesByUser;
@@ -154,49 +200,18 @@ class Canvas{
         shapesByUser = new TreeMap<>();
     }
 
-    public void readShapes(InputStream is) throws InvalidIdException, InvalidDimensionException {
+    public void readShapes(InputStream is) throws InvalidDimensionException {
         Scanner sc = new Scanner(is);
-        while(sc.hasNextLine()){
-            String line = sc.nextLine();
-            String[] parts = line.split("\\s+");
-            int type = Integer.parseInt(parts[0]);
-            String userId = parts[1];
-            double dimension1 = Double.parseDouble(parts[2]);
-
-            if(dimension1 == 0.0){
-                throw new InvalidDimensionException();
-            }
-            if(userId.length() != 6){
-                throw new InvalidIdException(userId);
-            }
-            for (char c : userId.toCharArray()) {
-                if(!Character.isLetterOrDigit(c)){
-                    throw new InvalidIdException(userId);
-                }
-            }
-
-            //1 = circle/2 = square/3 = rectangle
-            if (type == 1) {
-                Circle circle = new Circle(dimension1);
-                shapes.add(circle);
-                shapesByUser.putIfAbsent(userId, new TreeSet<>(Comparator.comparing(Shape::perimeter)));
-                shapesByUser.get(userId).add(circle);
-            } else if (type == 2) {
-                Square square = new Square(dimension1);
-                shapes.add(square);
-                shapesByUser.putIfAbsent(userId, new TreeSet<>(Comparator.comparing(Shape::perimeter)));
-                shapesByUser.get(userId).add(square);
-            } else if (type == 3) {
-                double dimension2 = Double.parseDouble(parts[3]);
-
-                if(dimension2 == 0.0){
-                    throw new InvalidDimensionException();
-                }
-
-                Rectangle rectangle = new Rectangle(dimension1, dimension2);
-                shapes.add(rectangle);
-                shapesByUser.putIfAbsent(userId, new TreeSet<>(Comparator.comparing(Shape::perimeter)));
-                shapesByUser.get(userId).add(rectangle);
+        while(sc.hasNextLine()) {
+            try {
+                String line = sc.nextLine();
+                String shapeId = ShapeFactory.extractId(line);
+                Shape shape = ShapeFactory.createShape(line);
+                shapes.add(shape);
+                shapesByUser.putIfAbsent(shapeId, new TreeSet<>(Comparator.comparing(Shape::perimeter)));
+                shapesByUser.get(shapeId).add(shape);
+            } catch(InvalidIdException e){
+                System.out.println(e.getMessage());
             }
         }
     }
@@ -236,15 +251,16 @@ class Canvas{
 
 public class CanvasTest {
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         Canvas canvas = new Canvas();
 
         System.out.println("READ SHAPES AND EXCEPTIONS TESTING");
         try {
             canvas.readShapes(System.in);
-        } catch (InvalidDimensionException | InvalidIdException e) {
-            e.getMessage();
+        } catch (InvalidDimensionException e) {
+            System.out.println(e.getMessage());
         }
+
         System.out.println("BEFORE SCALING");
         canvas.printAllShapes(System.out);
         canvas.scaleShapes("123456", 1.5);
