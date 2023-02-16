@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.IntStream;
 
 class AtkDef{
     List<Integer> attacker;
@@ -19,13 +20,8 @@ class AtkDef{
     public boolean successfulAttack(){
         attacker.sort(Comparator.naturalOrder());
         defender.sort(Comparator.naturalOrder());
-        int counter = 0;
-        for(int i=0;i<3;i++){
-            if(attacker.get(i) > defender.get(i)){
-                counter++;
-            }
-        }
-        return counter == 3;
+        return IntStream.range(0,3)
+                .allMatch(i -> attacker.get(i) > defender.get(i));
     }
 }
 

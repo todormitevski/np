@@ -76,7 +76,8 @@ class ShapesApplication{
         PrintWriter pw = new PrintWriter(outputStream);
         windows.stream()
                 .max(Comparator.comparing(Window::calcTotalPerimeter))
-                .ifPresent(System.out::println);
+                .ifPresent(pw::println);
+        pw.flush();
     }
 }
 
