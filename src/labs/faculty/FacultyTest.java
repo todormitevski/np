@@ -1,6 +1,6 @@
 //package labs.faculty;
 //
-//import aud4.grades.Student;
+//import auds.aud4.grades.Student;
 //
 //import java.sql.SQLOutput;
 //import java.util.*;
