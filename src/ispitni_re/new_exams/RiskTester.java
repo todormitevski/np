@@ -1,4 +1,4 @@
-package ispitni_re.newExams;
+package ispitni_re.new_exams;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

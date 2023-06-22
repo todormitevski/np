@@ -1,4 +1,4 @@
-package ispitni_re;
+package ispitni_re.old_exams;
 
 import java.util.ArrayList;
 import java.util.Comparator;
